@@ -2,6 +2,7 @@ const User = require('./../models/User.model')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 const saltRounds = 10
+const mongoose = require('mongoose')
 
 
 const signupUser = (req, res, next) => {
@@ -105,9 +106,28 @@ const filterUsers = (req, res, next) => {
         .catch(err => next(err))
 }
 
+
+const getUser = (req, res, next) => {
+
+    const { id: userId } = req.params
+
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+        res.status(404).json({ message: "Id format not valid" });
+        return
+    }
+
+    User
+        .findById(userId)
+        .then(user => {
+            res.json(user)
+        })
+        .catch(err => next(err))
+}
+
 module.exports = {
     signupUser,
     loginUser,
     verifyUser,
-    filterUsers
+    filterUsers,
+    getUser
 }
