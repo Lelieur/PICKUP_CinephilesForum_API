@@ -17,7 +17,6 @@ const findMovie = (req, res, next) => {
 
     const { querySearch } = req.params
 
-
     const url = `https://api.themoviedb.org/3/search/movie?query=${querySearch}`
 
     axios
