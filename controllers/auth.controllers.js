@@ -106,6 +106,13 @@ const filterUsers = (req, res, next) => {
         .catch(err => next(err))
 }
 
+const getAllUsers = (req, res, next) => {
+
+    User
+        .find()
+        .then(users => res.json(users))
+        .catch(err => next(err))
+}
 
 const getUser = (req, res, next) => {
 
@@ -129,5 +136,6 @@ module.exports = {
     loginUser,
     verifyUser,
     filterUsers,
+    getAllUsers,
     getUser
 }
