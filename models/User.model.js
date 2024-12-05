@@ -42,6 +42,10 @@ const userSchema = new Schema(
         message: 'Selecciona al menos tres géneros'
       }
     },
+    reviews: [{
+      type: Schema.Types.ObjectId,
+      ref: 'Review'
+    }],
     role: {
       type: String,
       enum: ["ADMIN", "USER"],
