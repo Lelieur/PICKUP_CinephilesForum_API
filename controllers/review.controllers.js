@@ -1,6 +1,7 @@
 const mongoose = require('mongoose')
 
 const Review = require('../models/Review.model')
+const User = require('../models/User.model')
 
 const getReviews = (req, res, next) => {
 
@@ -72,7 +73,16 @@ const saveReview = (req, res, next) => {
 
     Review
         .create({ author, movieApiId, content, rate })
-        .then(review => res.status(201).json(review))
+        .then(review => {
+
+            return User.findByIdAndUpdate(
+                author,
+                { $push: { reviews: review._id } },
+                { new: true, runValidators: true }
+            )
+                .then(() => res.status(201).json(review))
+                .catch(err => next(err))
+        })
         .catch(err => next(err))
 }
 
