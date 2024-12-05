@@ -11,4 +11,7 @@ module.exports = app => {
 
     const movieRouter = require("./movie.routes")
     app.use("/api", movieRouter)
+
+    const creditRouter = require("./credit.routes")
+    app.use("/api", creditRouter)
 }
