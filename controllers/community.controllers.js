@@ -1,5 +1,9 @@
+const axios = require('axios')
+
 const mongoose = require('mongoose')
 const Community = require('./../models/Community.model')
+
+const tmdbServices = require("./../services/tmdb.services")
 
 const getCommunities = (req, res, next) => {
 
@@ -22,15 +26,103 @@ const getOneCommunity = (req, res, next) => {
     Community
         .findById(communityId)
         .then(community => {
-            // const communityWithMoviesDetails = {
-            //     ...community.toObject(),
-            //     moviesDetails: req.moviesDetails
-            // }
-            // res.json(communityWithMoviesDetails)
             res.json(community)
         })
         .catch(err => next(err))
 
+}
+
+const getOneCommunityFullData = (req, res, next) => {
+
+    const { id: communityId } = req.params
+
+    let originalCommunity
+
+    if (!mongoose.Types.ObjectId.isValid(communityId)) {
+        res.status(404).json({ message: "Id format not valid" });
+        return
+    }
+
+    Community
+        .findById(communityId)
+        .then(community => {
+
+            originalCommunity = community
+
+            const { moviesApiIds, users, fetishActors, fetishDirectors } = community
+
+            const moviesPromises = moviesApiIds.map(elm => tmdbServices.fetchMoviesDetails(elm))
+            const actorsPromises = fetishActors.map(elm => tmdbServices.fetchPersonDetails(elm))
+            const directorsPromises = fetishDirectors.map(elm => tmdbServices.fetchPersonDetails(elm))
+
+            const usersPromises = users.map(elm => axios.get(`http://localhost:5005/api/users/${elm}`))
+
+            return Promise.all
+                ([
+                    Promise.all(moviesPromises),
+                    Promise.all(usersPromises),
+                    Promise.all(actorsPromises),
+                    Promise.all(directorsPromises)
+                ])
+
+        })
+        .then(([movies, users, actors, directos]) => {
+
+            const moviesData = movies.map(elm => {
+                const { original_title, backdrop_path } = elm.data
+
+                const directorData = {
+                    original_title: original_title,
+                    backdrop_path: backdrop_path
+                }
+
+                return directorData
+            })
+
+            const usersData = users.map(elm => elm.data)
+
+            const actorsData = actors.map(elm => {
+                const { name, profile_path } = elm.data
+
+                const actorData = {
+                    name: name,
+                    profile_path: profile_path
+                }
+
+                return actorData
+            })
+
+            const directorsData = directos.map(elm => {
+
+                const { name, profile_path } = elm.data
+
+                const directorData = {
+                    name: name,
+                    profile_path: profile_path
+                }
+
+                return directorData
+            })
+
+            const { title, description, cover, genres, decades, owner } = originalCommunity
+
+            const newCommunity = {
+                title: title,
+                description: description,
+                cover: cover,
+                genres: genres,
+                fetishDirectors: directorsData,
+                fetishActors: actorsData,
+                decades: decades,
+                moviesApiIds: moviesData,
+                users: usersData,
+                owner: owner
+            }
+
+            res.json(newCommunity)
+
+        })
+        .catch(err => next(err))
 }
 
 const saveCommunity = (req, res, next) => {
@@ -112,5 +204,6 @@ module.exports = {
     getOneCommunity,
     editCommunity,
     deleteCommunity,
-    filterCommunities
+    filterCommunities,
+    getOneCommunityFullData
 }

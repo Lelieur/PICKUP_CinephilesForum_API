@@ -55,10 +55,10 @@ const communitySchema = new Schema(
       type: Schema.Types.ObjectId,
       ref: 'User'
     }],
-    owner: [{
+    owner: {
       type: Schema.Types.ObjectId,
       ref: 'User'
-    }]
+    }
   },
   {
     timestamps: true

@@ -4,11 +4,11 @@ const {
   getOneCommunity,
   editCommunity,
   deleteCommunity,
-  filterCommunities
+  filterCommunities,
+  getOneCommunityFullData
 } = require("../controllers/community.controllers")
 
 const verifyToken = require("../middlewares/verifyToken")
-// const getMovieDetails = require("../middlewares/getMovieDetails")
 
 const router = require("express").Router()
 
@@ -19,10 +19,12 @@ router.post('/communities/', verifyToken, saveCommunity)
 
 router.put('/communities/:id', verifyToken, editCommunity)
 
-router.delete('/communities/:id', deleteCommunity)
+router.delete('/communities/:id', verifyToken, deleteCommunity)
 
 router.get('/communities/', getCommunities)
 
-router.get('/communities/:id', /*getMovieDetails,*/ getOneCommunity)
+router.get('/communities/:id', getOneCommunity)
+
+router.get('/communities/details/:id', getOneCommunityFullData)
 
 module.exports = router

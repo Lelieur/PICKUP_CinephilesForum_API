@@ -13,6 +13,18 @@ const getMovieDetails = (req, res, next) => {
         .catch(err => next(err))
 }
 
+const getCommunityMoviesDetails = (id, req, res, next) => {
+
+    const url = `https://api.themoviedb.org/3/movie/${id}`
+
+    axios
+        .get(url, { headers: { Authorization: `Bearer ${process.env.TMDB_API_TOKEN}` } })
+        .then(response => {
+            res.json(response.data)
+        })
+        .catch(err => next(err))
+}
+
 const findMovie = (req, res, next) => {
 
     const { querySearch } = req.params
@@ -29,5 +41,6 @@ const findMovie = (req, res, next) => {
 
 module.exports = {
     getMovieDetails,
-    findMovie
+    findMovie,
+    getCommunityMoviesDetails
 }
