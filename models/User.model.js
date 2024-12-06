@@ -28,7 +28,7 @@ const userSchema = new Schema(
       type: String,
     },
     socialNetworksProfiles: {
-      type: [String],
+      type: Object,
     },
     bio: {
       type: String,
