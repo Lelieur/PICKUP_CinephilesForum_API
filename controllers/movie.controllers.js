@@ -17,7 +17,7 @@ const findMovie = (req, res, next) => {
 
     const { querySearch } = req.params
 
-    const url = `https://api.themoviedb.org/3/search/movie?query=${querySearch}`
+    const url = `https://api.themoviedb.org/3/search/movie?query=${(querySearch)}`
 
     axios
         .get(url, { headers: { Authorization: `Bearer ${process.env.TMDB_API_TOKEN}` } })
