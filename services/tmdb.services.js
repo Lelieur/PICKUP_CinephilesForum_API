@@ -25,6 +25,7 @@ class tmdbServices {
         return this.axiosApp.get(`movie/${id}`)
     }
 
+
 }
 
 module.exports = new tmdbServices()

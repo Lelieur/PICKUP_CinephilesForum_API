@@ -71,6 +71,8 @@ const saveReview = (req, res, next) => {
     const { movieApiId, content, rate } = req.body
     const { _id: author } = req.payload
 
+
+
     Review
         .create({ author, movieApiId, content, rate })
         .then(review => {
@@ -91,6 +93,11 @@ const editReview = (req, res, next) => {
     const { movieApiId, content, rate, likesCounter } = req.body
     const { id: reviewId } = req.params
 
+    console.log("Review ID:", reviewId)
+    console.log("Request Body:", req.body)
+
+    console.log("Received data:", req.body)
+
     if (!mongoose.Types.ObjectId.isValid(reviewId)) {
         res.status(404).json({ message: "Id format not valid" });
         return
@@ -102,7 +109,7 @@ const editReview = (req, res, next) => {
             { movieApiId, content, rate, likesCounter },
             { runValidators: true }
         )
-        .then(review => res.sendStatus(200))
+        .then(() => res.sendStatus(200))
         .catch(err => next(err))
 }
 

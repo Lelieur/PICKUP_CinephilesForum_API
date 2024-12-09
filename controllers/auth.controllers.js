@@ -2,7 +2,7 @@ const User = require('./../models/User.model')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 const saltRounds = 10
-const mongoose = require('mongoose')
+
 
 
 const signupUser = (req, res, next) => {
@@ -90,52 +90,10 @@ const verifyUser = (req, res, next) => {
     res.json({ loggedUserData: req.payload })
 }
 
-const filterUsers = (req, res, next) => {
 
-    const { query } = req.query
-
-    if (!query) {
-        return res.status(400).json({ message: "Introduce un término de búsqueda" });
-    }
-
-    const querySearch = { username: { $regex: query, $options: 'i' } }
-
-    User
-        .find(querySearch)
-        .then(reviews => res.json(reviews))
-        .catch(err => next(err))
-}
-
-const getAllUsers = (req, res, next) => {
-
-    User
-        .find()
-        .then(users => res.json(users))
-        .catch(err => next(err))
-}
-
-const getUser = (req, res, next) => {
-
-    const { id: userId } = req.params
-
-    if (!mongoose.Types.ObjectId.isValid(userId)) {
-        res.status(404).json({ message: "Id format not valid" });
-        return
-    }
-
-    User
-        .findById(userId)
-        .then(user => {
-            res.json(user)
-        })
-        .catch(err => next(err))
-}
 
 module.exports = {
     signupUser,
     loginUser,
     verifyUser,
-    filterUsers,
-    getAllUsers,
-    getUser
 }
