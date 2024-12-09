@@ -49,24 +49,28 @@ const getOneCommunityFullData = (req, res, next) => {
 
             originalCommunity = community
 
-            const { moviesApiIds, users, fetishActors, fetishDirectors } = community
+            const { moviesApiIds, users, fetishActors, fetishDirectors, owner } = community
 
             const moviesPromises = moviesApiIds.map(elm => tmdbServices.fetchMoviesDetails(elm))
             const actorsPromises = fetishActors.map(elm => tmdbServices.fetchPersonDetails(elm))
             const directorsPromises = fetishDirectors.map(elm => tmdbServices.fetchPersonDetails(elm))
-
             const usersPromises = users.map(elm => axios.get(`http://localhost:5005/api/users/${elm}`))
+
+            const ownerPromise = axios.get(`http://localhost:5005/api/users/${owner}`)
 
             return Promise.all
                 ([
                     Promise.all(moviesPromises),
-                    Promise.all(usersPromises),
                     Promise.all(actorsPromises),
-                    Promise.all(directorsPromises)
+                    Promise.all(directorsPromises),
+                    Promise.all(usersPromises),
+                    ownerPromise
                 ])
 
         })
-        .then(([movies, users, actors, directos]) => {
+        .then(([movies, actors, directors, users, owner]) => {
+
+            const ownerData = owner.data
 
             const moviesData = movies.map(elm => {
                 const { original_title, backdrop_path } = elm.data
@@ -92,7 +96,7 @@ const getOneCommunityFullData = (req, res, next) => {
                 return actorData
             })
 
-            const directorsData = directos.map(elm => {
+            const directorsData = directors.map(elm => {
 
                 const { name, profile_path } = elm.data
 
@@ -104,7 +108,7 @@ const getOneCommunityFullData = (req, res, next) => {
                 return directorData
             })
 
-            const { title, description, cover, genres, decades, owner } = originalCommunity
+            const { title, description, cover, genres, decades } = originalCommunity
 
             const newCommunity = {
                 title: title,
@@ -116,7 +120,7 @@ const getOneCommunityFullData = (req, res, next) => {
                 decades: decades,
                 moviesApiIds: moviesData,
                 users: usersData,
-                owner: owner
+                owner: ownerData
             }
 
             res.json(newCommunity)
