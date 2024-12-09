@@ -14,4 +14,7 @@ module.exports = app => {
 
     const creditRouter = require("./credit.routes")
     app.use("/api", creditRouter)
+
+    const userRouter = require("./user.routes")
+    app.use("/api", userRouter)
 }
