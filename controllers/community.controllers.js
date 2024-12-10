@@ -74,11 +74,13 @@ const getOneCommunityFullData = (req, res, next) => {
             const ownerData = owner.data
 
             const moviesData = movies.map(elm => {
-                const { original_title, backdrop_path } = elm.data
+                const { original_title, backdrop_path, poster_path, id } = elm.data
 
                 const directorData = {
                     original_title: original_title,
-                    backdrop_path: backdrop_path
+                    backdrop_path: backdrop_path,
+                    poster_path: poster_path,
+                    id: id
                 }
 
                 return directorData
@@ -87,11 +89,12 @@ const getOneCommunityFullData = (req, res, next) => {
             const usersData = users.map(elm => elm.data)
 
             const actorsData = actors.map(elm => {
-                const { name, profile_path } = elm.data
+                const { name, profile_path, id } = elm.data
 
                 const actorData = {
                     name: name,
-                    profile_path: profile_path
+                    profile_path: profile_path,
+                    id: id
                 }
 
                 return actorData
@@ -99,19 +102,21 @@ const getOneCommunityFullData = (req, res, next) => {
 
             const directorsData = directors.map(elm => {
 
-                const { name, profile_path } = elm.data
+                const { name, profile_path, id } = elm.data
 
                 const directorData = {
                     name: name,
-                    profile_path: profile_path
+                    profile_path: profile_path,
+                    id: id
                 }
 
                 return directorData
             })
 
-            const { title, description, cover, genres, decades } = originalCommunity
+            const { _id, title, description, cover, genres, decades } = originalCommunity
 
             const newCommunity = {
+                _id: _id,
                 title: title,
                 description: description,
                 cover: cover,
@@ -156,6 +161,30 @@ const saveCommunity = (req, res, next) => {
 
 }
 
+const followCommunity = (req, res, next) => {
+
+    const { userId } = req.body
+    const { id: communityId } = req.params
+
+    Community
+        .findByIdAndUpdate(
+            communityId,
+            { $push: { users: userId } },
+            { new: true, runValidators: true }
+        )
+        .then(() => res.sendStatus(200))
+        .catch(err => next(err))
+
+    User
+        .findByIdAndUpdate(
+            userId,
+            { $push: { communities: communityId } },
+            { new: true, runValidators: true }
+        )
+        .then(() => res.sendStatus(200))
+        .catch(err => next(err))
+}
+
 const editCommunity = (req, res, next) => {
 
     const { title, description, cover, genres, fetishDirectors, fetishActors, decades, moviesApiIds, users } = req.body
@@ -180,7 +209,6 @@ const deleteCommunity = (req, res, next) => {
 
     const { id: communityId } = req.params
 
-
     if (!mongoose.Types.ObjectId.isValid(communityId)) {
         res.status(404).json({ message: "Id format not valid" });
         return
@@ -189,8 +217,9 @@ const deleteCommunity = (req, res, next) => {
 
     Community
         .findById(communityId)
+        .then(community => { return community })
         .then(community => {
-
+            console.log(community)
             const { owner } = community
 
             User
@@ -246,5 +275,6 @@ module.exports = {
     editCommunity,
     deleteCommunity,
     filterCommunities,
-    getOneCommunityFullData
+    getOneCommunityFullData,
+    followCommunity
 }

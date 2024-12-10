@@ -71,9 +71,9 @@ const loginUser = (req, res, next) => {
             }
 
 
-            const { _id, email, username } = user
+            const { _id, email, username, avatar } = user
 
-            const payLoad = { _id, email, username }
+            const payLoad = { _id, email, username, avatar }
 
             const authToken = jwt.sign(
                 payLoad,
