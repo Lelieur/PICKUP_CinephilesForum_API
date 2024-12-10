@@ -107,7 +107,12 @@ const editReview = (req, res, next) => {
             { movieApiId, content, rate, likesCounter },
             { runValidators: true }
         )
-        .then(() => res.sendStatus(200))
+        .then(updatedReview => {
+            if (!updatedReview) {
+                return res.status(404).json({ message: "Review not found" })
+            }
+            res.status(200).json(updatedReview)
+        })
         .catch(err => next(err))
 }
 
@@ -147,6 +152,27 @@ const filterReviews = (req, res, next) => {
         .catch(err => next(err))
 }
 
+const likeReview = (req, res) => {
+    const { id } = req.params
+
+    Review.findById(id)
+        .then((review) => {
+            if (!review) {
+                return res.status(404).send({ message: "Review not found" })
+            }
+
+            review.likesCounter = (review.likesCounter || 0) + 1
+            return review.save();
+        })
+        .then((updatedReview) => {
+            res.status(200).json(updatedReview)
+        })
+        .catch((err) => {
+            console.error(err)
+            res.status(500).send({ message: "Server error" })
+        })
+}
+
 module.exports = {
     getReviews,
     getReviewsFromMovie,
@@ -157,4 +183,5 @@ module.exports = {
     editReview,
     deleteReview,
     filterReviews,
+    likeReview,
 }
