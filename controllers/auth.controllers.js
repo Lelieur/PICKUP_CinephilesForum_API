@@ -72,6 +72,7 @@ const loginUser = (req, res, next) => {
 
 
             const { _id, email, username } = user
+
             const payLoad = { _id, email, username }
 
             const authToken = jwt.sign(
@@ -80,7 +81,7 @@ const loginUser = (req, res, next) => {
                 { algorithm: 'HS256', expiresIn: "6h" }
             )
 
-            res.json({ authToken })
+            res.json({ authToken, _id })
         })
         .catch(err => next(err))
 

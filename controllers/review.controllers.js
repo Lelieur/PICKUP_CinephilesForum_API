@@ -71,8 +71,6 @@ const saveReview = (req, res, next) => {
     const { movieApiId, content, rate } = req.body
     const { _id: author } = req.payload
 
-
-
     Review
         .create({ author, movieApiId, content, rate })
         .then(review => {

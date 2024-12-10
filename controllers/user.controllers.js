@@ -25,8 +25,46 @@ const getUser = (req, res, next) => {
         })
 }
 
+const editUser = (req, res, next) => {
+
+    const { _id, firstName, bio, email, username, socialNetworksProfiles, favoriteGenres, role, communities, reviews } = req.body
+
+    if (!mongoose.Types.ObjectId.isValid(_id)) {
+        return res.status(400).json({ message: "User ID format is not valid" });
+    }
+
+    User
+        .findByIdAndUpdate(
+            _id,
+            { firstName, bio, email, username, socialNetworksProfiles, favoriteGenres, role, communities, reviews },
+            { runValidators: true }
+        )
+        .then(() => res.sendStatus(200))
+        .catch(err => next(err))
+
+}
 
 const getAllUsers = (req, res, next) => {
+    const { page = 1, limit = 10 } = req.query
+
+
+    User
+        .find()
+        .skip((page - 1) * limit)
+        .limit(Number(limit))
+        .then(users => {
+            if (users.length === 0) {
+                return res.status(404).json({ message: "No users found" });
+            }
+            res.json(users)
+        })
+        .catch(err => {
+            console.error("Error fetching users:", err)
+            next(err)
+        })
+}
+
+const getAllUsersPopulated = (req, res, next) => {
     const { page = 1, limit = 10 } = req.query
 
 
@@ -74,6 +112,8 @@ const filterUsers = (req, res, next) => {
 
 module.exports = {
     getUser,
-    getAllUsers,
-    filterUsers
+    editUser,
+    getAllUsersPopulated,
+    filterUsers,
+    getAllUsers
 }

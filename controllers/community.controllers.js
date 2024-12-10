@@ -2,6 +2,7 @@ const axios = require('axios')
 
 const mongoose = require('mongoose')
 const Community = require('./../models/Community.model')
+const User = require('./../models/User.model')
 
 const tmdbServices = require("./../services/tmdb.services")
 
@@ -131,13 +132,28 @@ const getOneCommunityFullData = (req, res, next) => {
 
 const saveCommunity = (req, res, next) => {
 
-    const { title, description, cover, genres, fetishDirectors, fetishActors, decades, moviesApiIds, users } = req.body
-    const { _id: owner } = req.payload
+    const { title, description, cover, genres, fetishDirectors, fetishActors, decades, moviesApiIds, users, owner } = req.body
 
     Community
         .create({ title, description, cover, genres, fetishDirectors, fetishActors, decades, moviesApiIds, users, owner })
-        .then(community => res.status(201).json(community))
+        .then(community => {
+            res.status(201).json(community)
+            return (community._id)
+        })
+        .then(communityId => {
+
+            User
+                .findByIdAndUpdate(
+                    owner,
+                    { $push: { communities: communityId } },
+                    { new: true, runValidators: true }
+                )
+                .then()
+                .catch(err => next(err))
+
+        })
         .catch(err => next(err))
+
 }
 
 const editCommunity = (req, res, next) => {
@@ -164,15 +180,36 @@ const deleteCommunity = (req, res, next) => {
 
     const { id: communityId } = req.params
 
+
     if (!mongoose.Types.ObjectId.isValid(communityId)) {
         res.status(404).json({ message: "Id format not valid" });
         return
     }
 
+
+    Community
+        .findById(communityId)
+        .then(community => {
+
+            const { owner } = community
+
+            User
+                .findByIdAndUpdate(
+                    owner,
+                    { $pull: { communities: communityId } },
+                    { new: true, runValidators: true }
+                )
+                .then()
+                .catch(err => next(err))
+
+        })
+        .catch(err => next(err))
+
     Community
         .findByIdAndDelete(communityId)
         .then(() => res.sendStatus(200))
         .catch(err => next(err))
+
 }
 
 const filterCommunities = async (req, res, next) => {
