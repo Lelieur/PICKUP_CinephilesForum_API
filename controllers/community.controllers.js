@@ -76,14 +76,14 @@ const getOneCommunityFullData = (req, res, next) => {
             const moviesData = movies.map(elm => {
                 const { original_title, backdrop_path, poster_path, id } = elm.data
 
-                const directorData = {
+                const movieData = {
                     original_title: original_title,
                     backdrop_path: backdrop_path,
                     poster_path: poster_path,
                     id: id
                 }
 
-                return directorData
+                return movieData
             })
 
             const usersData = users.map(elm => elm.data)
@@ -163,14 +163,14 @@ const saveCommunity = (req, res, next) => {
 
 const followCommunity = (req, res, next) => {
 
-    const { userId } = req.body
+    const { _id: userId } = req.body
     const { id: communityId } = req.params
 
     Community
         .findByIdAndUpdate(
             communityId,
             { $push: { users: userId } },
-            { new: true, runValidators: true }
+            { runValidators: true }
         )
         .then(() => res.sendStatus(200))
         .catch(err => next(err))
@@ -178,8 +178,32 @@ const followCommunity = (req, res, next) => {
     User
         .findByIdAndUpdate(
             userId,
-            { $push: { communities: communityId } },
-            { new: true, runValidators: true }
+            { $push: { followedCommunities: communityId } },
+            { runValidators: true }
+        )
+        .then(() => res.sendStatus(200))
+        .catch(err => next(err))
+}
+
+const unFollowCommunity = (req, res, next) => {
+
+    const { _id: userId } = req.body
+    const { id: communityId } = req.params
+
+    Community
+        .findByIdAndUpdate(
+            communityId,
+            { $pull: { users: userId } },
+            { runValidators: true }
+        )
+        .then(() => res.sendStatus(200))
+        .catch(err => next(err))
+
+    User
+        .findByIdAndUpdate(
+            userId,
+            { $pull: { followedCommunities: communityId } },
+            { runValidators: true }
         )
         .then(() => res.sendStatus(200))
         .catch(err => next(err))
@@ -276,5 +300,6 @@ module.exports = {
     deleteCommunity,
     filterCommunities,
     getOneCommunityFullData,
-    followCommunity
+    followCommunity,
+    unFollowCommunity
 }

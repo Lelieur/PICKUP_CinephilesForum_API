@@ -47,7 +47,7 @@ const signupUser = (req, res, next) => {
 const loginUser = (req, res, next) => {
 
 
-    const { username, password, email } = req.body
+    const { password, email } = req.body
 
     if (email === '' || password === '') {
         res.status(400).json({ message: 'Provide username and password.' })
@@ -71,9 +71,9 @@ const loginUser = (req, res, next) => {
             }
 
 
-            const { _id, email, username, avatar } = user
+            const { _id, email, username, avatar, followedCommunities } = user
 
-            const payLoad = { _id, email, username, avatar }
+            const payLoad = { _id, email, username, avatar, followedCommunities }
 
             const authToken = jwt.sign(
                 payLoad,

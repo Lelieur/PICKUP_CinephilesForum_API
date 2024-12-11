@@ -54,6 +54,10 @@ const userSchema = new Schema(
     communities: [{
       type: Schema.Types.ObjectId,
       ref: 'Community'
+    }],
+    followedCommunities: [{
+      type: Schema.Types.ObjectId,
+      ref: 'Community'
     }]
   },
   {
