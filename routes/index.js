@@ -9,11 +9,8 @@ module.exports = app => {
     const reviewRouter = require("./review.routes")
     app.use("/api", reviewRouter)
 
-    const movieRouter = require("./movie.routes")
-    app.use("/api", movieRouter)
-
-    const creditRouter = require("./credit.routes")
-    app.use("/api", creditRouter)
+    const tmdbRouter = require("./tmdb.routes")
+    app.use("/api", tmdbRouter)
 
     const userRouter = require("./user.routes")
     app.use("/api", userRouter)
