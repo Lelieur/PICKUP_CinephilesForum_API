@@ -21,7 +21,7 @@ class tmdbServices {
         return this.axiosApp.get(`person/${id}`)
     }
 
-    fetchMoviesDetails(id) {
+    fetchMovieDetails(id) {
         return this.axiosApp.get(`movie/${id}`)
     }
 

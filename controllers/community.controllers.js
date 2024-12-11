@@ -52,7 +52,7 @@ const getOneCommunityFullData = (req, res, next) => {
 
             const { moviesApiIds, users, fetishActors, fetishDirectors, owner } = community
 
-            const moviesPromises = moviesApiIds.map(elm => tmdbServices.fetchMoviesDetails(elm))
+            const moviesPromises = moviesApiIds.map(elm => tmdbServices.fetchMovieDetails(elm))
             const actorsPromises = fetishActors.map(elm => tmdbServices.fetchPersonDetails(elm))
             const directorsPromises = fetishDirectors.map(elm => tmdbServices.fetchPersonDetails(elm))
             const usersPromises = users.map(elm => axios.get(`http://localhost:5005/api/users/${elm}`))
