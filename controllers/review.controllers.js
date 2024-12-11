@@ -2,6 +2,8 @@ const mongoose = require('mongoose')
 
 const Review = require('../models/Review.model')
 const User = require('../models/User.model')
+const tmdbServices = require("./../services/tmdb.services")
+const axios = require('axios')
 
 const getReviews = (req, res, next) => {
 
@@ -155,22 +157,69 @@ const filterReviews = (req, res, next) => {
 const likeReview = (req, res) => {
     const { id } = req.params
 
-    Review.findById(id)
-        .then((review) => {
-            if (!review) {
-                return res.status(404).send({ message: "Review not found" })
+    Review.findById(id,
+        { $inc: { likesCounter: 1 } },
+        { new: true }
+    )
+        .then((updatedReview) => {
+            if (!updatedReview) {
+                return res.status(404).send({ message: "Review not found" });
             }
 
-            review.likesCounter = (review.likesCounter || 0) + 1
-            return review.save();
-        })
-        .then((updatedReview) => {
-            res.status(200).json(updatedReview)
+            res.status(200).json(updatedReview);
         })
         .catch((err) => {
             console.error(err)
             res.status(500).send({ message: "Server error" })
         })
+}
+
+const getOneReviewFullData = (req, res, next) => {
+
+    const { id: reviewId } = req.params
+
+    let originalReview
+
+    if (!mongoose.Types.ObjectId.isValid(reviewId)) {
+        res.status(404).json({ message: "Id format not valid" });
+        return
+    }
+
+    Review
+        .findById(reviewId)
+        .then(review => {
+
+            originalReview = review
+
+            const { movieApiId, author } = review
+
+            const movieDataPromise = tmdbServices.fetchMovieDetails(movieApiId)
+
+            const authorDataPromise = axios.get(`http://localhost:5005/api/users/${author}`)
+
+            return Promise.all([movieDataPromise, authorDataPromise])
+        })
+
+        .then(([movie, author]) => {
+            const authorData = author.data
+            const movieData = movie.data
+
+            const { _id, content, rate, likesCounter, createdAt } = originalReview
+
+            const newReview = {
+                _id,
+                content,
+                rate,
+                likesCounter,
+                createdAt,
+                author: authorData,
+                movieApiId: movieData,
+            }
+
+            res.json(newReview)
+
+        })
+        .catch(err => next(err))
 }
 
 module.exports = {
@@ -184,4 +233,5 @@ module.exports = {
     deleteReview,
     filterReviews,
     likeReview,
+    getOneReviewFullData
 }
