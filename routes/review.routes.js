@@ -1,5 +1,5 @@
 const {
-  getReviews,
+  getAllReviews,
   getReviewsFromMovie,
   saveReview,
   getOneReview,
@@ -25,7 +25,7 @@ router.get('/reviews/movies/:movieId', getReviewsFromMovie)
 router.get('/reviews/users/:authorId', getReviewsFromAuthor)
 router.get('/reviews/top', getMostLikedReviews)
 router.delete('/reviews/:id', verifyToken, deleteReview)
-router.get('/reviews', getReviews)
+router.get('/reviews', getAllReviews)
 router.get('/reviews/:id', getOneReview)
 router.patch('/:id/like', likeReview)
 router.get('/reviews/details/:id', getOneReviewFullData)
