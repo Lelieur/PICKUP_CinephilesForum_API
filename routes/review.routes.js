@@ -17,8 +17,20 @@ const verifyToken = require("../middlewares/verifyToken")
 
 const router = require("express").Router()
 
+router.get('/reviews/search/:querySearch', async (req, res, next) => {
+  const { querySearch } = req.params
 
-router.get('/reviews/search', filterReviews)
+  try {
+    const response = await filterReviews(querySearch)
+    console.log(response)
+    res.json(response)
+  }
+  catch (error) {
+    next(error)
+  }
+})
+
+
 router.post('/reviews', verifyToken, saveReview)
 router.put('/reviews/:id', verifyToken, editReview)
 router.get('/reviews/movies/:movieId', getReviewsFromMovie)

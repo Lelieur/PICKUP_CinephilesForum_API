@@ -87,27 +87,25 @@ const getAllUsersPopulated = (req, res, next) => {
 }
 
 
-const filterUsers = (req, res, next) => {
-    const { query } = req.query
+const filterUsers = (query) => {
+
+    const newQuery = query
 
 
     if (!query) {
         return res.status(400).json({ message: "Please provide a search term" })
     }
 
-    const querySearch = { username: { $regex: query, $options: 'i' } }
-    User
+    const querySearch = {
+        $or: [
+            { username: { $regex: newQuery, $options: 'i' } },
+            { email: { $regex: newQuery, $options: 'i' } }
+        ]
+    }
+    return User
         .find(querySearch)
-        .then(users => {
-            if (users.length === 0) {
-                return res.status(404).json({ message: "No users found matching the search" })
-            }
-            res.json(users)
-        })
-        .catch(err => {
-            console.error("Error searching users:", err)
-            next(err)
-        })
+        .then(users => users)
+        .catch(err => console.log(err))
 }
 
 module.exports = {

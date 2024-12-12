@@ -265,9 +265,9 @@ const deleteCommunity = (req, res, next) => {
 
 }
 
-const filterCommunities = async (req, res, next) => {
+const filterCommunities = (query) => {
 
-    const { query } = req.query
+    const newQuery = query
 
     if (!query) {
         return res.status(400).json({ message: "Introduce un término de búsqueda" });
@@ -275,20 +275,22 @@ const filterCommunities = async (req, res, next) => {
 
     const querySearch = {
         $or: [
-            { title: { $regex: query, $options: 'i' } },
-            { description: { $regex: query, $options: 'i' } },
-            { genres: { $regex: query, $options: 'i' } },
-            { fetishDirectors: { $regex: query, $options: 'i' } },
-            { fetishActors: { $regex: query, $options: 'i' } },
-            { decades: parseInt(query) || undefined },
-            { moviesApiIds: query }
+            { title: { $regex: newQuery } },
+            { description: { $regex: newQuery, $options: 'i' } },
+            { genres: { $regex: newQuery, $options: 'i' } },
+            { fetishDirectors: { $regex: newQuery, $options: 'i' } },
+            { fetishActors: { $regex: newQuery, $options: 'i' } },
+            { decades: parseInt(newQuery) || undefined },
+            { moviesApiIds: newQuery }
         ]
+
     }
 
-    Community
+
+    return Community
         .find(querySearch)
-        .then(communities => res.json(communities))
-        .catch(err => next(err))
+        .then(communities => communities)
+        .catch(err => console.log(err))
 }
 
 

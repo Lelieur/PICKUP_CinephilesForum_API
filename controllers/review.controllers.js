@@ -133,24 +133,27 @@ const deleteReview = (req, res, next) => {
         .catch(err => next(err))
 }
 
-const filterReviews = (req, res, next) => {
+const filterReviews = (query) => {
 
-    const { query } = req.query
+    const newQuery = query
 
     if (!query) {
-        return res.status(400).json({ message: "Introduce un término de búsqueda" });
+        return res.status(400).json({ message: "Introduce un término de búsqueda" })
     }
 
     const querySearch = {
         $or: [
-            { movieApiId: { $regex: query, $options: 'i' } },
-            { content: { $regex: query, $options: 'i' } }
+            { movieApiId: { $regex: newQuery, $options: 'i' } },
+            { content: { $regex: newQuery, $options: 'i' } },
+            { movieName: { $regex: newQuery, $options: 'i' } },
+            { content: { $regex: newQuery, $options: 'i' } },
+            { userName: { $regex: newQuery, $options: 'i' } }
         ]
     }
 
-    Review
+    return Review
         .find(querySearch)
-        .then(reviews => res.json(reviews))
+        .then(reviews => reviews)
         .catch(err => next(err))
 }
 
@@ -221,6 +224,9 @@ const getOneReviewFullData = (req, res, next) => {
         })
         .catch(err => next(err))
 }
+
+
+
 
 module.exports = {
     getReviews,
