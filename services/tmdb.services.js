@@ -29,6 +29,20 @@ class tmdbServices {
         return this.axiosApp.get('movie/now_playing')
     }
 
+    fetchTopRatedMovies(page = 1) {
+        return this.axiosApp.get(`movie/top_rated`, { params: { page } });
+    }
+
+
+    fetchNowPlayingMovies(page = 1) {
+        return this.axiosApp.get(`movie/now_playing`, { params: { page } });
+    }
+
+
+    fetchUpcomingMovies(page = 1) {
+        return this.axiosApp.get(`movie/upcoming`, { params: { page } });
+    }
+
     fetchMovieFilter(querySearch, cancelToken) {
         return this.axiosApp.get(`search/movie?query=${encodeURIComponent(querySearch)}`, {
             cancelToken
