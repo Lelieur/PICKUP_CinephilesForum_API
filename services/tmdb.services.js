@@ -39,6 +39,10 @@ class tmdbServices {
         const querySearchAdapted = querySearch.replace(/ /g, "%20")
         return this.axiosApp.get(`search/person?query=${encodeURIComponent(querySearch)}&include_adult=false&language=en-US&page=1`)
     }
+
+    fetchUpcomingMovies(page = 1) {
+        return this.axiosApp.get(`movie/upcoming?page=${page}`)
+    }
 }
 
 module.exports = new tmdbServices()
