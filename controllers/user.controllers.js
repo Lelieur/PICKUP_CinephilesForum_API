@@ -72,7 +72,7 @@ const getAllUsersPopulated = (req, res, next) => {
         .skip((page - 1) * limit)
         .limit(Number(limit))
         .populate('reviews')
-        .populate('communities')
+        .populate('followedCommunities')
         .then(users => {
             if (users.length === 0) {
                 return res.status(404).json({ message: "No users found" });
