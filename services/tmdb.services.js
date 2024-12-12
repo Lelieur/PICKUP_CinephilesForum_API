@@ -25,7 +25,20 @@ class tmdbServices {
         return this.axiosApp.get(`movie/${id}`)
     }
 
+    fetchPopularMovies() {
+        return this.axiosApp.get('movie/now_playing')
+    }
 
+    fetchMovieFilter(querySearch, cancelToken) {
+        return this.axiosApp.get(`search/movie?query=${encodeURIComponent(querySearch)}`, {
+            cancelToken
+        })
+    }
+
+    fetchPersonFilter(querySearch) {
+        const querySearchAdapted = querySearch.replace(/ /g, "%20")
+        return this.axiosApp.get(`search/person?query=${encodeURIComponent(querySearch)}&include_adult=false&language=en-US&page=1`)
+    }
 }
 
 module.exports = new tmdbServices()

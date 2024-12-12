@@ -11,7 +11,6 @@ const getUser = (req, res, next) => {
 
     User
         .findById(userId)
-        .populate('reviews')
         .populate('communities')
         .then(user => {
             if (!user) {

@@ -2,16 +2,22 @@ const mongoose = require('mongoose')
 
 const Review = require('../models/Review.model')
 const User = require('../models/User.model')
+
 const tmdbServices = require("./../services/tmdb.services")
 const axios = require('axios')
 
-const getReviews = (req, res, next) => {
+const getAllReviews = (req, res, next) => {
 
     Review
         .find()
-        .then(reviews => res.json(reviews))
+        .then(response => {
+            const unOrderedReviews = response
+            unOrderedReviews.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+            res.json(unOrderedReviews)
+        })
         .catch(err => next(err))
 }
+
 
 const getMostLikedReviews = (req, res, next) => {
 
@@ -70,19 +76,25 @@ const getOneReview = (req, res, next) => {
 
 const saveReview = (req, res, next) => {
 
-    const { movieApiId, content, rate } = req.body
-    const { _id: author } = req.payload
+    const { movieApiId, content, rate, author } = req.body
+
+    console.log(`hasta aquí llega`)
 
     Review
         .create({ author, movieApiId, content, rate })
         .then(review => {
+            res.status(201).json(review)
+            return (review._id)
+        })
+        .then(reviewId => {
 
-            return User.findByIdAndUpdate(
-                author,
-                { $push: { reviews: review._id } },
-                { new: true, runValidators: true }
-            )
-                .then(() => res.status(201).json(review))
+            User
+                .findByIdAndUpdate(
+                    author,
+                    { $push: { reviews: reviewId } },
+                    { new: true, runValidators: true }
+                )
+                .then()
                 .catch(err => next(err))
         })
         .catch(err => next(err))
@@ -93,10 +105,6 @@ const editReview = (req, res, next) => {
     const { movieApiId, content, rate, likesCounter } = req.body
     const { id: reviewId } = req.params
 
-    console.log("Review ID:", reviewId)
-    console.log("Request Body:", req.body)
-
-    console.log("Received data:", req.body)
 
     if (!mongoose.Types.ObjectId.isValid(reviewId)) {
         res.status(404).json({ message: "Id format not valid" });
@@ -126,6 +134,25 @@ const deleteReview = (req, res, next) => {
         res.status(404).json({ message: "Id format not valid" });
         return
     }
+
+    Review
+        .findById(reviewId)
+        .then(review => { return review })
+        .then(review => {
+            const { author } = review
+
+            User
+                .findByIdAndUpdate(
+                    author,
+                    { $pull: { reviews: reviewId } },
+                    { new: true, runValidators: true }
+                )
+                .then()
+                .catch(err => next(err))
+
+        })
+        .catch(err => next(err))
+
 
     Review
         .findByIdAndDelete(reviewId)
@@ -160,10 +187,11 @@ const filterReviews = (query) => {
 const likeReview = (req, res) => {
     const { id } = req.params
 
-    Review.findById(id,
-        { $inc: { likesCounter: 1 } },
-        { new: true }
-    )
+    Review
+        .findById(id,
+            { $inc: { likesCounter: 1 } },
+            { new: true }
+        )
         .then((updatedReview) => {
             if (!updatedReview) {
                 return res.status(404).send({ message: "Review not found" });
@@ -204,8 +232,12 @@ const getOneReviewFullData = (req, res, next) => {
         })
 
         .then(([movie, author]) => {
+
             const authorData = author.data
             const movieData = movie.data
+
+            const { original_title, poster_path, release_date } = movieData
+            const { avatar, username, firstName, _id: authorId } = authorData
 
             const { _id, content, rate, likesCounter, createdAt } = originalReview
 
@@ -215,8 +247,17 @@ const getOneReviewFullData = (req, res, next) => {
                 rate,
                 likesCounter,
                 createdAt,
-                author: authorData,
-                movieApiId: movieData,
+                author: {
+                    _id: authorId,
+                    avatar: avatar,
+                    username: username,
+                    firstName: firstName
+                },
+                movieApiId: {
+                    original_title: original_title,
+                    poster_path: poster_path,
+                    release_date: release_date
+                },
             }
 
             res.json(newReview)
@@ -229,7 +270,7 @@ const getOneReviewFullData = (req, res, next) => {
 
 
 module.exports = {
-    getReviews,
+    getAllReviews,
     getReviewsFromMovie,
     getReviewsFromAuthor,
     getMostLikedReviews,
