@@ -18,7 +18,22 @@ const getAllReviews = (req, res, next) => {
         .catch(err => next(err))
 }
 
-const getLastedMoviesReviewed = (req, res, next) => {
+const getReviewsFromMovie = (req, res, next) => {
+
+    console.log("HASTA AQUÍ LLEGA")
+
+    const { movieId: movieApiId } = req.params
+
+    Review
+        .find({ movieApiId })
+        .sort({ rate: -1 })
+        .limit(10)
+        .populate("author")
+        .then(reviews => res.json(reviews))
+        .catch(err => next(err))
+}
+
+const getLastReviewedMovies = (req, res, next) => {
 
     Review
         .find()
@@ -54,24 +69,57 @@ const getLastedMoviesReviewed = (req, res, next) => {
         .catch(err => next(err))
 }
 
+const getMostReviewedMovies = (req, res, next) => {
+
+    Review
+        .find()
+        .then(response => {
+
+            const moviesId = response.map(review => { return review.movieApiId })
+
+            const repeatedMovies = moviesId.reduce((acc, id) => {
+                acc[id] = (acc[id] || 0) + 1
+                return acc;
+            }, {})
+
+            const sortedRepeatedMovies =
+                Object
+                    .entries(repeatedMovies)
+                    .filter(([_, count]) => count > 1)
+                    .sort((a, b) => b[1] - a[1])
+
+            const idsInOrder = sortedRepeatedMovies.map(([id]) => id)
+
+            const moviesPromises = idsInOrder.map(id => tmdbServices.fetchMovieDetails(id))
+
+            return Promise.all(moviesPromises)
+        })
+        .then(movies => {
+
+            const moviesData = movies.map(elm => {
+                const { original_title, backdrop_path, poster_path, id } = elm.data
+
+                const movieData = {
+                    original_title: original_title,
+                    backdrop_path: backdrop_path,
+                    poster_path: poster_path,
+                    id: id
+                }
+
+                return movieData
+            })
+
+            res.json(moviesData)
+        })
+        .catch(err => next(err))
+}
+
 
 const getMostLikedReviews = (req, res, next) => {
 
     Review
         .find()
         .sort({ likesCounter: -1 })
-        .limit(10)
-        .then(reviews => res.json(reviews))
-        .catch(err => next(err))
-}
-
-const getReviewsFromMovie = (req, res, next) => {
-
-    const { movieId: movieApiId } = req.params
-
-    Review
-        .find({ movieApiId })
-        .sort({ rate: -1 })
         .limit(10)
         .then(reviews => res.json(reviews))
         .catch(err => next(err))
@@ -306,10 +354,13 @@ const getOneReviewFullData = (req, res, next) => {
 
         .then(([movie, author]) => {
 
+            console.log("HASTA AQUÍ LLEGA")
+
+
             const authorData = author.data
             const movieData = movie.data
 
-            const { original_title, poster_path, release_date } = movieData
+            const { original_title, poster_path, release_date, id: movieId } = movieData
             const { avatar, username, firstName, _id: authorId } = authorData
 
             const { _id, content, rate, likesCounter, createdAt } = originalReview
@@ -327,11 +378,14 @@ const getOneReviewFullData = (req, res, next) => {
                     firstName: firstName
                 },
                 movieApiId: {
+                    id: movieId,
                     original_title: original_title,
                     poster_path: poster_path,
                     release_date: release_date
                 },
             }
+
+            console.log(newReview)
 
             res.json(newReview)
 
@@ -355,5 +409,6 @@ module.exports = {
     likeReview,
     dislikeReview,
     getOneReviewFullData,
-    getLastedMoviesReviewed
+    getLastReviewedMovies,
+    getMostReviewedMovies
 }
