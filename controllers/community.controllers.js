@@ -15,6 +15,16 @@ const getCommunities = (req, res, next) => {
         .catch(err => next(err))
 }
 
+const getMostFollowedCommunities = (req, res, next) => {
+
+    Community
+        .find()
+        .select({ title: 1, cover: 1, genres: 1 })
+        .sort({ users: 1 })
+        .then(communities => res.json(communities))
+        .catch(err => next(err))
+}
+
 const getOneCommunity = (req, res, next) => {
 
     const { id: communityId } = req.params
@@ -306,5 +316,6 @@ module.exports = {
     filterCommunities,
     getOneCommunityFullData,
     followCommunity,
-    unFollowCommunity
+    unFollowCommunity,
+    getMostFollowedCommunities
 }

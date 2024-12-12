@@ -7,7 +7,8 @@ const {
   filterCommunities,
   getOneCommunityFullData,
   followCommunity,
-  unFollowCommunity
+  unFollowCommunity,
+  getMostFollowedCommunities
 } = require("../controllers/community.controllers")
 
 const verifyToken = require("../middlewares/verifyToken")
@@ -35,6 +36,7 @@ router.put('/communities/follow/:id', followCommunity)
 router.put('/communities/unfollow/:id', unFollowCommunity)
 router.delete('/communities/:id', verifyToken, deleteCommunity)
 router.get('/communities/', getCommunities)
+router.get('/communities/top', getMostFollowedCommunities)
 router.get('/communities/:id', getOneCommunity)
 router.get('/communities/details/:id', getOneCommunityFullData)
 

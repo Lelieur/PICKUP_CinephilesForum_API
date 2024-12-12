@@ -10,7 +10,8 @@ const {
   getMostLikedReviews,
   likeReview,
   getOneReviewFullData,
-  dislikeReview
+  dislikeReview,
+  getLastedMoviesReviewed
 } = require("../controllers/review.controllers")
 
 
@@ -39,6 +40,7 @@ router.get('/reviews/users/:authorId', getReviewsFromAuthor)
 router.get('/reviews/top', getMostLikedReviews)
 router.delete('/reviews/:id', verifyToken, deleteReview)
 router.get('/reviews', getAllReviews)
+router.get('/reviews/movies', getLastedMoviesReviewed)
 router.get('/reviews/:id', getOneReview)
 router.put('/reviews/like/:id', likeReview)
 router.put('/reviews/dislike/:id', dislikeReview)

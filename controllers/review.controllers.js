@@ -12,8 +12,44 @@ const getAllReviews = (req, res, next) => {
         .find()
         .then(response => {
             const unOrderedReviews = response
-            unOrderedReviews.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-            res.json(unOrderedReviews)
+            const orderedReviews = unOrderedReviews.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+            res.json(orderedReviews)
+        })
+        .catch(err => next(err))
+}
+
+const getLastedMoviesReviewed = (req, res, next) => {
+
+    Review
+        .find()
+        .then(response => {
+
+            const unOrderedReviews = response
+            const orderedReviews = unOrderedReviews.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+
+            const moviesId = orderedReviews.map(review => { return review.movieApiId })
+            const filteredMoviesId = moviesId.filter((value, index) => moviesId.indexOf(value) === index)
+
+            const moviesPromises = filteredMoviesId.map(elm => tmdbServices.fetchMovieDetails(elm))
+
+            return Promise.all(moviesPromises)
+        })
+        .then(movies => {
+
+            const moviesData = movies.map(elm => {
+                const { original_title, backdrop_path, poster_path, id } = elm.data
+
+                const movieData = {
+                    original_title: original_title,
+                    backdrop_path: backdrop_path,
+                    poster_path: poster_path,
+                    id: id
+                }
+
+                return movieData
+            })
+
+            res.json(moviesData)
         })
         .catch(err => next(err))
 }
@@ -318,5 +354,6 @@ module.exports = {
     filterReviews,
     likeReview,
     dislikeReview,
-    getOneReviewFullData
+    getOneReviewFullData,
+    getLastedMoviesReviewed
 }
