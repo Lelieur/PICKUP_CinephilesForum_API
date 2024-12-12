@@ -170,19 +170,22 @@ const followCommunity = (req, res, next) => {
         .findByIdAndUpdate(
             communityId,
             { $push: { users: userId } },
-            { runValidators: true }
+            { new: true, runValidators: true }
         )
-        .then(() => res.sendStatus(200))
+        .then(response => {
+            User
+                .findByIdAndUpdate(
+                    userId,
+                    { $push: { followedCommunities: communityId } },
+                    { new: true, runValidators: true }
+                )
+                .then(response => {
+                    res.sendStatus(200)
+                })
+                .catch(err => next(err))
+        })
         .catch(err => next(err))
 
-    User
-        .findByIdAndUpdate(
-            userId,
-            { $push: { followedCommunities: communityId } },
-            { runValidators: true }
-        )
-        .then(() => res.sendStatus(200))
-        .catch(err => next(err))
 }
 
 const unFollowCommunity = (req, res, next) => {
@@ -196,16 +199,16 @@ const unFollowCommunity = (req, res, next) => {
             { $pull: { users: userId } },
             { runValidators: true }
         )
-        .then(() => res.sendStatus(200))
-        .catch(err => next(err))
-
-    User
-        .findByIdAndUpdate(
-            userId,
-            { $pull: { followedCommunities: communityId } },
-            { runValidators: true }
-        )
-        .then(() => res.sendStatus(200))
+        .then(() => {
+            User
+                .findByIdAndUpdate(
+                    userId,
+                    { $pull: { followedCommunities: communityId } },
+                    { runValidators: true }
+                )
+                .then(() => res.sendStatus(200))
+                .catch(err => next(err))
+        })
         .catch(err => next(err))
 }
 

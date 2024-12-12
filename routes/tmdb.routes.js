@@ -3,8 +3,19 @@ const tmdbServices = require('./../services/tmdb.services')
 const router = require("express").Router()
 
 router.get('/movies/popular', tmdbServices.fetchPopularMovies)
-router.get('/movies/:id', tmdbServices.fetchMovieDetails)
 router.get('/person/:id', tmdbServices.fetchPersonDetails)
+
+
+router.get('/movies/:id', async (req, res, next) => {
+    const { id } = req.params
+    try {
+        const response = await tmdbServices.fetchMovieDetails(id)
+        res.json(response.data)
+    } catch (error) {
+        next(error)
+    }
+})
+
 
 router.get('/movies/search/:querySearch', async (req, res, next) => {
     const { querySearch } = req.params

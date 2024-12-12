@@ -46,6 +46,10 @@ const userSchema = new Schema(
       type: Schema.Types.ObjectId,
       ref: 'Review'
     }],
+    likedReviews: [{
+      type: Schema.Types.ObjectId,
+      ref: 'Review'
+    }],
     role: {
       type: String,
       enum: ["ADMIN", "USER"],

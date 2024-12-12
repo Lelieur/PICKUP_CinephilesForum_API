@@ -9,7 +9,8 @@ const {
   getReviewsFromAuthor,
   getMostLikedReviews,
   likeReview,
-  getOneReviewFullData
+  getOneReviewFullData,
+  dislikeReview
 } = require("../controllers/review.controllers")
 
 
@@ -39,7 +40,8 @@ router.get('/reviews/top', getMostLikedReviews)
 router.delete('/reviews/:id', verifyToken, deleteReview)
 router.get('/reviews', getAllReviews)
 router.get('/reviews/:id', getOneReview)
-router.patch('/:id/like', likeReview)
+router.put('/reviews/like/:id', likeReview)
+router.put('/reviews/dislike/:id', dislikeReview)
 router.get('/reviews/details/:id', getOneReviewFullData)
 
 module.exports = router

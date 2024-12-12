@@ -23,7 +23,11 @@ const reviewSchema = new Schema(
     likesCounter: {
       type: Number,
       default: 0
-    }
+    },
+    usersLikes: [{
+      type: Schema.Types.ObjectId,
+      ref: 'User'
+    }]
   },
   {
     timestamps: true

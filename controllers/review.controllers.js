@@ -184,25 +184,62 @@ const filterReviews = (query) => {
         .catch(err => next(err))
 }
 
-const likeReview = (req, res) => {
-    const { id } = req.params
+const likeReview = (req, res, next) => {
+
+    const { _id: userId } = req.body
+    const { id: reviewId } = req.params
 
     Review
-        .findById(id,
-            { $inc: { likesCounter: 1 } },
-            { new: true }
+        .findByIdAndUpdate(
+            reviewId,
+            {
+                $push: { usersLikes: userId },
+                $inc: { likesCounter: 1 }
+            },
+            { new: true, runValidators: true }
         )
-        .then((updatedReview) => {
-            if (!updatedReview) {
-                return res.status(404).send({ message: "Review not found" });
-            }
+        .then(response => res.json(response))
+        .then(() => {
 
-            res.status(200).json(updatedReview);
+            User
+                .findByIdAndUpdate(
+                    userId,
+                    { $push: { likedReviews: reviewId } },
+                    { new: true, runValidators: true }
+                )
+                .then()
+                .catch(err => next(err))
         })
-        .catch((err) => {
-            console.error(err)
-            res.status(500).send({ message: "Server error" })
+        .catch(err => next(err))
+}
+
+const dislikeReview = (req, res, next) => {
+
+    const { _id: userId } = req.body
+    const { id: reviewId } = req.params
+
+    Review
+        .findByIdAndUpdate(
+            reviewId,
+            {
+                $pull: { usersLikes: userId },
+                $inc: { likesCounter: -1 }
+            },
+            { new: true, runValidators: true }
+        )
+        .then(response => res.json(response))
+        .then(() => {
+
+            User
+                .findByIdAndUpdate(
+                    userId,
+                    { $pull: { likedReviews: reviewId } },
+                    { new: true, runValidators: true }
+                )
+                .then()
+                .catch(err => next(err))
         })
+        .catch(err => next(err))
 }
 
 const getOneReviewFullData = (req, res, next) => {
@@ -280,5 +317,6 @@ module.exports = {
     deleteReview,
     filterReviews,
     likeReview,
+    dislikeReview,
     getOneReviewFullData
 }
