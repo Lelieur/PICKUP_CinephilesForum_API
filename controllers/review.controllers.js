@@ -10,7 +10,11 @@ const getAllReviews = (req, res, next) => {
 
     Review
         .find()
-        .then(reviews => res.json(reviews))
+        .then(response => {
+            const unOrderedReviews = response
+            unOrderedReviews.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+            res.json(unOrderedReviews)
+        })
         .catch(err => next(err))
 }
 
@@ -132,6 +136,25 @@ const deleteReview = (req, res, next) => {
     }
 
     Review
+        .findById(reviewId)
+        .then(review => { return review })
+        .then(review => {
+            const { author } = review
+
+            User
+                .findByIdAndUpdate(
+                    author,
+                    { $pull: { reviews: reviewId } },
+                    { new: true, runValidators: true }
+                )
+                .then()
+                .catch(err => next(err))
+
+        })
+        .catch(err => next(err))
+
+
+    Review
         .findByIdAndDelete(reviewId)
         .then(() => res.sendStatus(200))
         .catch(err => next(err))
@@ -161,10 +184,11 @@ const filterReviews = (req, res, next) => {
 const likeReview = (req, res) => {
     const { id } = req.params
 
-    Review.findById(id,
-        { $inc: { likesCounter: 1 } },
-        { new: true }
-    )
+    Review
+        .findById(id,
+            { $inc: { likesCounter: 1 } },
+            { new: true }
+        )
         .then((updatedReview) => {
             if (!updatedReview) {
                 return res.status(404).send({ message: "Review not found" });
@@ -210,7 +234,7 @@ const getOneReviewFullData = (req, res, next) => {
             const movieData = movie.data
 
             const { original_title, poster_path, release_date } = movieData
-            const { avatar, username, firstName } = authorData
+            const { avatar, username, firstName, _id: authorId } = authorData
 
             const { _id, content, rate, likesCounter, createdAt } = originalReview
 
@@ -221,6 +245,7 @@ const getOneReviewFullData = (req, res, next) => {
                 likesCounter,
                 createdAt,
                 author: {
+                    _id: authorId,
                     avatar: avatar,
                     username: username,
                     firstName: firstName
