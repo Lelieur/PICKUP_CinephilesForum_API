@@ -1,9 +1,9 @@
-# fly.toml app configuration file generated for server-final-project-ironhack on 2024-12-12T15:36:34+01:00
+# fly.toml app configuration file generated for server-final-project on 2024-12-12T15:33:59+01:00
 #
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
 
-app = 'server-final-project-ironhack'
+app = 'server-final-project'
 primary_region = 'cdg'
 
 [build]
