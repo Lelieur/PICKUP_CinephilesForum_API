@@ -2,7 +2,7 @@ const tmdbServices = require('./../services/tmdb.services')
 
 const router = require("express").Router()
 
-router.get('/movies/popular', tmdbServices.fetchPopularMovies)
+
 router.get('/person/:id', tmdbServices.fetchPersonDetails)
 
 
@@ -65,56 +65,45 @@ router.get('/persons/actors/search/:querySearch', async (req, res, next) => {
 
 router.get('/movies/popular', async (req, res, next) => {
     try {
-        const { page = 1 } = req.query;
-        const response = await tmdbServices.fetchPopularMovies(page);
-        res.json(response.data);
+        const { page, language, region } = req.query
+        const response = await tmdbServices.fetchPopularMovies(page, language, region)
+        res.json(response.data)
     } catch (error) {
-        next(error);
+        next(error)
     }
-});
+})
 
 
-router.get('/movies/top-rated', async (req, res, next) => {
+router.get('/movie/now-playing', async (req, res, next) => {
     try {
-        const { page = 1 } = req.query;
-        const response = await tmdbServices.fetchTopRatedMovies(page);
+        const { page, language, region } = req.query;
+        const response = await tmdbServices.fetchNowPlayingMovies(page, language, region)
         res.json(response.data);
     } catch (error) {
         next(error);
     }
-});
+})
 
 
-router.get('/movies/now-playing', async (req, res, next) => {
+router.get('/movies/top_rated', async (req, res, next) => {
     try {
-        const { page = 1 } = req.query;
-        const response = await tmdbServices.fetchNowPlayingMovies(page);
-        res.json(response.data);
+        const { page, language, region } = req.query;
+        const response = await tmdbServices.fetchTopRatedMovies(page, language, region)
+        res.json(response.data)
     } catch (error) {
-        next(error);
+        next(error)
     }
-});
+})
 
 
 router.get('/movies/upcoming', async (req, res, next) => {
     try {
-        const { page = 1 } = req.query;
-        const response = await tmdbServices.fetchUpcomingMovies(page);
-        res.json(response.data);
+        const { page, language, region } = req.query
+        const response = await tmdbServices.fetchUpcomingMovies(page, language, region)
+        res.json(response.data)
     } catch (error) {
-        next(error);
+        next(error)
     }
-});
-
-
-
-
-
-
-
-
-
-
-
+})
 
 module.exports = router
