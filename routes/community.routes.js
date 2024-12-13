@@ -30,7 +30,7 @@ router.get('/communities/search/:querySearch', async (req, res, next) => {
 })
 
 
-router.post('/communities/', verifyToken, saveCommunity)
+router.post('/communities', verifyToken, saveCommunity)
 router.put('/communities/:id', verifyToken, editCommunity)
 router.put('/communities/follow/:id', followCommunity)
 router.put('/communities/unfollow/:id', unFollowCommunity)
