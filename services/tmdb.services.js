@@ -25,24 +25,50 @@ class tmdbServices {
         return this.axiosApp.get(`movie/${id}?append_to_response=credits`)
     }
 
-    fetchPopularMovies() {
-        return this.axiosApp.get('movie/now_playing')
-    }
 
-    fetchMovieFilter(querySearch, cancelToken) {
-        return this.axiosApp.get(`search/movie?query=${encodeURIComponent(querySearch)}`, {
-            cancelToken
+    fetchPopularMovies(page = 1, language = 'en-US,', region = 'US') {
+        return this.axiosApp.get(`movie/popular`, {
+            params: {
+                language: language,
+                page: page,
+                region: region,
+            }
         })
     }
 
-    fetchPersonFilter(querySearch) {
-        const querySearchAdapted = querySearch.replace(/ /g, "%20")
-        return this.axiosApp.get(`search/person?query=${encodeURIComponent(querySearchAdapted)}&include_adult=false&language=en-US&page=1`)
+
+    fetchNowPlayingMovies(page = 1, language = 'en-US', region = 'US') {
+        return this.axiosApp.get('movie/now_playing', {
+            params: {
+                language: language,
+                page: page,
+                region: region,
+            },
+        });
     }
 
-    fetchUpcomingMovies(page = 1) {
-        return this.axiosApp.get(`movie/upcoming?page=${page}`)
+
+    fetchTopRatedMovies(page = 1, language = 'en-US', region = 'US') {
+        return this.axiosApp.get('movie/top_rated', {
+            params: {
+                language: language,
+                page: page,
+                region: region,
+            }
+        })
+    }
+
+
+    fetchUpcomingMovies(page = 1, language = 'en-US', region = 'US') {
+        return this.axiosApp.get('movie/upcoming', {
+            params: {
+                language: language,
+                page: page,
+                region: region,
+            },
+        })
     }
 }
+
 
 module.exports = new tmdbServices()

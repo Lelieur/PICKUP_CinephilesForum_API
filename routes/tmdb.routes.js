@@ -2,7 +2,7 @@ const tmdbServices = require('./../services/tmdb.services')
 
 const router = require("express").Router()
 
-router.get('/movies/popular', tmdbServices.fetchPopularMovies)
+
 router.get('/person/:id', tmdbServices.fetchPersonDetails)
 
 
@@ -62,75 +62,48 @@ router.get('/persons/actors/search/:querySearch', async (req, res, next) => {
     }
 })
 
-router.get('/movies/upcoming', async (req, res, next) => {
+
+router.get('/movies/popular', async (req, res, next) => {
     try {
-        const response = await tmdbServices.fetchUpcomingMovies()
-        res.json(response)
+        const { page, language, region } = req.query
+        const response = await tmdbServices.fetchPopularMovies(page, language, region)
+        res.json(response.data)
     } catch (error) {
-        console.error('Error al obtener las películas próximas:', error.message)
         next(error)
     }
 })
 
 
-// app.get('/api/popular', async (req, res) => {
-//     try {
-//         const response = await axios.get(`${BASE_URL}movie/popular`, {
-//             params: {
-//                 api_key: TMDB_API_KEY,
-//                 language: 'es-ES'
-//             }
-//         });
-//         res.json(response.data.results);
-//     } catch (error) {
-//         res.status(500).json({ error: 'Error al obtener películas populares' })
-//     }
-// })
+router.get('/movie/now-playing', async (req, res, next) => {
+    try {
+        const { page, language, region } = req.query;
+        const response = await tmdbServices.fetchNowPlayingMovies(page, language, region)
+        res.json(response.data);
+    } catch (error) {
+        next(error);
+    }
+})
 
 
-// app.get('/api/top-rated', async (req, res) => {
-//     try {
-//         const response = await axios.get(`${BASE_URL}movie/top_rated`, {
-//             params: {
-//                 api_key: TMDB_API_KEY,
-//                 language: 'es-ES'
-//             }
-//         })
-//         res.json(response.data.results)
-//     } catch (error) {
-//         res.status(500).json({ error: 'Error al obtener películas mejor valoradas' })
-//     }
-// })
+router.get('/movies/top_rated', async (req, res, next) => {
+    try {
+        const { page, language, region } = req.query;
+        const response = await tmdbServices.fetchTopRatedMovies(page, language, region)
+        res.json(response.data)
+    } catch (error) {
+        next(error)
+    }
+})
 
 
-// app.get('/api/now-playing', async (req, res) => {
-//     try {
-//         const response = await axios.get(`${BASE_URL}movie/now_playing`, {
-//             params: {
-//                 api_key: TMDB_API_KEY,
-//                 language: 'es-ES'
-//             }
-//         });
-//         res.json(response.data.results);
-//     } catch (error) {
-//         res.status(500).json({ error: 'Error al obtener películas en cartelera' })
-//     }
-// })
-
-
-// app.get('/api/upcoming', async (req, res) => {
-//     try {
-//         const response = await axios.get(`${BASE_URL}movie/upcoming`, {
-//             params: {
-//                 api_key: TMDB_API_KEY,
-//                 language: 'es-ES'
-//             }
-//         });
-//         res.json(response.data.results)
-//     } catch (error) {
-//         res.status(500).json({ error: 'Error al obtener películas próximas' })
-//     }
-// })
-
+router.get('/movies/upcoming', async (req, res, next) => {
+    try {
+        const { page, language, region } = req.query
+        const response = await tmdbServices.fetchUpcomingMovies(page, language, region)
+        res.json(response.data)
+    } catch (error) {
+        next(error)
+    }
+})
 
 module.exports = router
