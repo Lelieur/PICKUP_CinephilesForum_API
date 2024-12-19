@@ -18,9 +18,8 @@ const getAllReviews = (req, res, next) => {
         .catch(err => next(err))
 }
 
-const getReviewsFromMovie = (req, res, next) => {
 
-    console.log("HASTA AQUÍ LLEGA")
+const getReviewsFromMovie = (req, res, next) => {
 
     const { movieId: movieApiId } = req.params
 
@@ -158,30 +157,42 @@ const getOneReview = (req, res, next) => {
         .catch(err => next(err))
 }
 
-const saveReview = (req, res, next) => {
+const saveReview = async (req, res, next) => {
 
-    const { movieApiId, content, rate, author } = req.body
+    try {
+        const { movieApiId, content, rate, author } = req.body
 
-    console.log(`hasta aquí llega`)
+        const movieDetails = await tmdbServices
+            .fetchMovieDetails(movieApiId)
+            .then(movie => {
+                const movieData = movie.data
+                const { original_title, poster_path, release_date, id } = movieData
+                const filteredMovideData = {
+                    original_title: original_title,
+                    poster_path: poster_path,
+                    release_date: release_date,
+                    id: id
+                }
+                return filteredMovideData
+            })
 
-    Review
-        .create({ author, movieApiId, content, rate })
-        .then(review => {
-            res.status(201).json(review)
-            return (review._id)
+        const review = await Review.create({ author, movieApiId, content, rate })
+
+        await User.findByIdAndUpdate(
+            author,
+            { $push: { reviews: review._id } },
+            { new: true, runValidators: true }
+        )
+
+        const reviewWithAuthor = await Review.findById(review._id).populate({
+            path: 'author',
+            select: 'avatar firstName username',
         })
-        .then(reviewId => {
 
-            User
-                .findByIdAndUpdate(
-                    author,
-                    { $push: { reviews: reviewId } },
-                    { new: true, runValidators: true }
-                )
-                .then()
-                .catch(err => next(err))
-        })
-        .catch(err => next(err))
+        res.status(201).json({ ...reviewWithAuthor._doc, ["movieApiId"]: movieDetails })
+    } catch (err) {
+        next(err)
+    }
 }
 
 const editReview = (req, res, next) => {
@@ -339,31 +350,22 @@ const getOneReviewFullData = (req, res, next) => {
 
     Review
         .findById(reviewId)
+        .populate({ path: 'author', select: 'avatar firstName username' })
         .then(review => {
 
             originalReview = review
 
-            const { movieApiId, author } = review
+            const { movieApiId } = review
 
-            const movieDataPromise = tmdbServices.fetchMovieDetails(movieApiId)
-
-            const authorDataPromise = axios.get(`http://localhost:5005/api/users/${author}`)
-
-            return Promise.all([movieDataPromise, authorDataPromise])
+            return movieData = tmdbServices.fetchMovieDetails(movieApiId)
         })
+        .then((movie) => {
 
-        .then(([movie, author]) => {
-
-            console.log("HASTA AQUÍ LLEGA")
-
-
-            const authorData = author.data
             const movieData = movie.data
 
             const { original_title, poster_path, release_date, id: movieId } = movieData
-            const { avatar, username, firstName, _id: authorId } = authorData
 
-            const { _id, content, rate, likesCounter, createdAt } = originalReview
+            const { _id, content, rate, likesCounter, createdAt, author } = originalReview
 
             const newReview = {
                 _id,
@@ -371,12 +373,7 @@ const getOneReviewFullData = (req, res, next) => {
                 rate,
                 likesCounter,
                 createdAt,
-                author: {
-                    _id: authorId,
-                    avatar: avatar,
-                    username: username,
-                    firstName: firstName
-                },
+                author,
                 movieApiId: {
                     id: movieId,
                     original_title: original_title,
@@ -384,8 +381,6 @@ const getOneReviewFullData = (req, res, next) => {
                     release_date: release_date
                 },
             }
-
-            console.log(newReview)
 
             res.json(newReview)
 

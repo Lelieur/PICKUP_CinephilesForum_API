@@ -21,7 +21,7 @@ class tmdbServices {
     }
 
     fetchMovieDetails(id) {
-        return this.axiosApp.get(`movie/${id}?append_to_response=credits`)
+        return this.axiosApp.get(`movie/${id}?append_to_response=credits`).select({ original_title: 1, backdrop_path: 1, id: 1, poster_path: 1, release_date: 1 })
     }
 
     fetchPopularMovies() {
