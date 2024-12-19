@@ -22,7 +22,7 @@ class tmdbServices {
     }
 
     fetchMovieDetails(id) {
-        return this.axiosApp.get(`movie/${id}`)
+        return this.axiosApp.get(`movie/${id}?append_to_response=credits`)
     }
 
     fetchPopularMovies() {
