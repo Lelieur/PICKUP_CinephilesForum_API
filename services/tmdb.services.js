@@ -47,6 +47,26 @@ class tmdbServices {
         return this.axiosApp.get(`movie/${id}?append_to_response=credits`)
     }
 
+    fetchPersonDetails(id) {
+        return this.axiosApp.get(`person/${id}`)
+    }
+
+    fetchMovieDetails(id) {
+        return this.axiosApp.get(`movie/${id}`)
+    }
+
+
+    fetchMovieFilter(querySearch, cancelToken) {
+        return this.axiosApp.get(`search/movie?query=${encodeURIComponent(querySearch)}`, {
+            cancelToken
+        })
+    }
+
+    fetchPersonFilter(querySearch) {
+        const querySearchAdapted = querySearch.replace(/ /g, "%20")
+        return this.axiosApp.get(`search/person?query=${encodeURIComponent(querySearchAdapted)}&include_adult=false&language=en-US&page=1`)
+    }
+
 
     fetchPopularMovies(page = 1, language = 'en-US,', region = 'US') {
         return this.axiosApp.get(`movie/popular`, {
