@@ -101,7 +101,7 @@ class tmdbServices {
     }
 
 
-    fetchUpcomingMovies(page = 1, language = 'en-US', region = 'US') {
+    fetchUpcomingMovies(page = 1, language = 'en-US', region = 'ES') {
         return this.axiosApp.get('movie/upcoming', {
             params: {
                 language: language,
@@ -110,6 +110,11 @@ class tmdbServices {
             },
         })
     }
+
+    fetchMovieVideos(id) {
+        return this.axiosApp.get(`movie/${id}/videos`)
+    }
+
 }
 
 

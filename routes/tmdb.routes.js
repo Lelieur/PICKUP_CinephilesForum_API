@@ -76,11 +76,11 @@ router.get('/movies/popular', async (req, res, next) => {
 
 router.get('/movie/now-playing', async (req, res, next) => {
     try {
-        const { page, language, region } = req.query;
+        const { page, language, region } = req.query
         const response = await tmdbServices.fetchNowPlayingMovies(page, language, region)
-        res.json(response.data);
+        res.json(response.data)
     } catch (error) {
-        next(error);
+        next(error)
     }
 })
 
@@ -105,5 +105,16 @@ router.get('/movies/upcoming', async (req, res, next) => {
         next(error)
     }
 })
+
+router.get('/movies/:id/videos', async (req, res, next) => {
+    const { id } = req.params
+    try {
+        const response = await tmdbServices.fetchMovieVideos(id)
+        res.json(response.data)
+    } catch (error) {
+        next(error)
+    }
+})
+
 
 module.exports = router
