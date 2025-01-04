@@ -114,8 +114,10 @@ class tmdbServices {
     fetchMovieVideos(id) {
         return this.axiosApp.get(`movie/${id}/videos`)
     }
+    fetchWatchProviders(id) {
+        return this.axiosApp.get(`movie/${id}/watch/providers`)
+    }
 
 }
-
 
 module.exports = new tmdbServices()

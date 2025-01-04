@@ -117,4 +117,14 @@ router.get('/movies/:id/videos', async (req, res, next) => {
 })
 
 
+router.get("/movie/:id/watch/providers", async (req, res, next) => {
+    const { id } = req.params
+    try {
+        const response = await tmdbServices.fetchWatchProviders(id)
+        res.json(response.data)
+    } catch (error) {
+        next(error)
+    }
+})
+
 module.exports = router
