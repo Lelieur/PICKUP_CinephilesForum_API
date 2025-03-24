@@ -1,15 +1,15 @@
-# fly.toml app configuration file generated for server-final-project on 2024-12-12T15:33:59+01:00
+# fly.toml app configuration file generated for pickup-api on 2025-03-24T13:24:35Z
 #
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
 
-app = 'server-final-project'
-primary_region = 'cdg'
+app = 'pickup-api'
+primary_region = 'mad'
 
 [build]
 
 [http_service]
-  internal_port = 5005
+  internal_port = 3000
   force_https = true
   auto_stop_machines = 'stop'
   auto_start_machines = true
@@ -20,3 +20,4 @@ primary_region = 'cdg'
   memory = '1gb'
   cpu_kind = 'shared'
   cpus = 1
+  memory_mb = 1024
